@@ -21,13 +21,13 @@ import java.util.Scanner;
 
 public class Launcher {
 
-    private static final String APPLICATION_NAME = "OpenCloseSync/1.0";
+    private static final String APPLICATION_NAME = "OpenCloseSync/1.1";
     private static HttpTransport httpTransport;
     private static final String DATA_STORE_DIR = "./userData"; //Storage for user creds, users home directory in subdirect
     private static FileDataStoreFactory dataStoreFactory; //Best practice, shared across app
-    private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA, DriveScopes.DRIVE); //Sets authorization scope - can have more than one?
+    private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA, DriveScopes.DRIVE);
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance(); //wtf is this???
-    public static Scanner userInput = new Scanner(System.in);
+    static Scanner userInput = new Scanner(System.in);
 
     private static Credential authorize() throws Exception{ //authorizes app to access user data
         InputStream sekritLoc = Launcher.class.getResourceAsStream("/client_secret.json");
@@ -44,7 +44,6 @@ public class Launcher {
 
     public static void main(String args[]) {
         System.out.print("Select an option: ");
-//        Scanner userOption = new Scanner(System.in);
         int option = userInput.nextInt();
 
         try{
@@ -54,23 +53,24 @@ public class Launcher {
             Credential credential = authorize();
 
             Drive service = new Drive.Builder(httpTransport, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
+            DriveManager driver = new DriveManager();
             // End auth, start activity
             switch (option){
                 case 1: {
-                    String loc = DriveManager.downloadFile(service);
-                    DriveManager.runProcessor(loc);
+                    String loc = driver.downloadFile(service);
+                    driver.runProcessor(loc);
                     break;
                 }
                 case 2: {
-                    DriveManager.killProcessor();
-                    DriveManager.uploadFile(service);
+                    driver.killProcessor();
+                    driver.uploadFile(service);
                     break;
                 }
                 case 3: System.exit(0);
             }
         } catch(IOException e){
             System.out.println(e.getMessage());
-            System.out.println("Authenticaton has failed");
+            System.out.println("An error has occurred.");
         } catch (Throwable t) {
             t.printStackTrace();
         }
