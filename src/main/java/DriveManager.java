@@ -23,11 +23,7 @@ class DriveManager {
         System.out.print("Enter folder name to display contents: ");
         String folderName = Launcher.userInput.next();
         folderName = driveSingleSearcher("folder", "", folderName, service).getId(); //current workaround
-        FileList dirList = driveListSearcher(folderName,service); //@TODO only takes ID, not name, find reason why and fix
-
-        for(File file:dirList.getFiles()){
-            System.out.printf("Found file: %s (%s)\n", file.getName(), file.getId());
-        }
+        driveListSearcher(true,folderName,service); //@TODO only takes ID, not name, find reason why and fix
 
         System.out.print("Enter file name: ");
         Launcher.userInput.nextLine();
@@ -65,10 +61,7 @@ class DriveManager {
                 System.out.println(fileToUpload.getCanonicalPath());
             }
             //Look up specified folder
-            FileList folderList = driveListSearcher("root", service);
-            for(File file:folderList.getFiles()){
-                System.out.printf("%s (%s)\n", file.getName(), file.getId());
-            }
+            driveListSearcher(false,"root", service);
             System.out.print("Enter folder name to store in (blank for root): ");
             String folderName = Launcher.userInput.next();
             foundFolder = driveSingleSearcher("folder", "", folderName, service);
@@ -152,18 +145,34 @@ class DriveManager {
         return foundObject;
     }
 
-    private FileList driveListSearcher(String folderName, Drive service) throws IOException{
+    private void driveListSearcher(boolean fileType, String folderName, Drive service) throws IOException{
         String pageToken = null;
         FileList result;
-        do {
-            result = service.files().list()
-                    .setQ("'"+folderName+"' in parents and "+"mimeType != 'application/vnd.google-apps.folder' and trashed = false") //no folders, specific name text
-                    .setFields("nextPageToken, files(name, id, parents)")
-                    .setPageToken(pageToken)
-                    .execute();
-            pageToken = result.getNextPageToken();
-        }while(pageToken!=null);
-        return result;
+        if(fileType) {
+            do {
+                result = service.files().list()
+                        .setQ("'" + folderName + "' in parents and " + "mimeType != 'application/vnd.google-apps.folder' and trashed = false") //no folders, specific name text
+                        .setFields("nextPageToken, files(name, id, parents)")
+                        .setPageToken(pageToken)
+                        .execute();
+                pageToken = result.getNextPageToken();
+                for(File file:result.getFiles()){
+                    System.out.printf("%s (%s)\n", file.getName(), file.getId());
+                }
+            } while (pageToken != null);
+        } else if(!fileType){
+            do {
+                result = service.files().list()
+                        .setQ("'" + folderName + "' in parents and " + "mimeType = 'application/vnd.google-apps.folder' and trashed = false") //no folders, specific name text
+                        .setFields("nextPageToken, files(name, id, parents)")
+                        .setPageToken(pageToken)
+                        .execute();
+                for(File file:result.getFiles()){
+                    System.out.printf("%s (%s)\n", file.getName(), file.getId());
+                }
+                pageToken = result.getNextPageToken();
+            } while (pageToken != null);
+        }
     }
 
     void runProcessor(String fileName){
