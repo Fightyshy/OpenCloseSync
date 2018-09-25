@@ -58,15 +58,15 @@ class DriveManager {
                 System.out.print("Enter a file number: ");
                 int fileChoice = Launcher.userInput.nextInt();
                 fileToUpload = new java.io.File(storagePath+java.io.File.separator+dirList[fileChoice-1].getName());
-                System.out.println(fileToUpload.getCanonicalPath());
             }
-            //Look up specified folder
+            System.out.println("Folders found below:");
             driveListSearcher(false,"root", service);
+            System.out.println();
             System.out.print("Enter folder name to store in (blank for root): ");
             String folderName = Launcher.userInput.next();
             foundFolder = driveSingleSearcher("folder", "", folderName, service);
+            System.out.println();
 
-            //Upload to GDrive - update and create
             fileCrosscheck = driveSingleSearcher("file", foundFolder.getId(), fileToUpload!=null?fileToUpload.getName():"", service);
             System.out.println("Upload confirmed successful");
 
