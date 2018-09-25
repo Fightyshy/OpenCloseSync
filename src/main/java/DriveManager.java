@@ -65,6 +65,10 @@ class DriveManager {
                 System.out.println(fileToUpload.getCanonicalPath());
             }
             //Look up specified folder
+            FileList folderList = driveListSearcher("root", service);
+            for(File file:folderList.getFiles()){
+                System.out.printf("%s (%s)\n", file.getName(), file.getId());
+            }
             System.out.print("Enter folder name to store in (blank for root): ");
             String folderName = Launcher.userInput.next();
             foundFolder = driveSingleSearcher("folder", "", folderName, service);

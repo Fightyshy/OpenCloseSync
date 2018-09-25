@@ -43,6 +43,7 @@ public class Launcher {
     }
 
     public static void main(String args[]) {
+        System.out.println("1 for download file, 2 for upload file, 3 for exit.");
         System.out.print("Select an option: ");
         int option = userInput.nextInt();
 
