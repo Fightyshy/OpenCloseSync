@@ -21,25 +21,33 @@ class DriveManager {
     private final String storagePath = System.getProperty("user.dir")+java.io.File.separator+"diskStorage";
     private final String userPath = System.getProperty("user.dir")+java.io.File.separator+"userData";
 
+    //@TODO downloadFile and uploadFile -> find platform neutral clear console or update to different console logging
+
     String downloadFile(Drive service) throws IOException {
         //actual hard modo - on startup, go through every file that exists and download a fresh copy
         //@TODO Add warning feature for overwriting existing file
         File foundFile;
+        String folderName;
+
+        System.out.println("Folders in GDrive below: ");
+        driveListSearcher(false,"",service);
+        System.out.println();
 
         System.out.print("Enter folder name to display contents: ");
-        String folderName = Launcher.userInput.next();
+        folderName = Launcher.userInput.next();
         folderName = driveSingleSearcher(false, "", folderName, service).getId(); //current workaround
         driveListSearcher(true,folderName,service); //@TODO only takes ID, not name, find reason why and fix
 
+        System.out.println();
         System.out.print("Enter file name: ");
         Launcher.userInput.nextLine();
         String searchName = Launcher.userInput.nextLine();
         Launcher.userInput.close();
 
-        foundFile = driveSingleSearcher(true,"",searchName,service);
+        foundFile = driveSingleSearcher(true,folderName,searchName,service);
 
         java.io.File dir = new java.io.File(storagePath);
-        boolean mkdir = dir.mkdir();//doesn't replace if exists
+        dir.mkdir();//doesn't replace if exists
         OutputStream outputStream = new FileOutputStream(new java.io.File(storagePath+java.io.File.separator+foundFile.getName()));
         service.files().get(foundFile.getId()).executeMediaAndDownloadTo(outputStream);
         outputStream.close();
@@ -47,8 +55,7 @@ class DriveManager {
     }
 
     void uploadFile(Drive service){
-        java.io.File[] dirList = new java.io.File(storagePath).listFiles();
-        java.io.File fileToUpload = null;
+        java.io.File fileToUpload;
         File foundFolder;
         File fileCrosscheck;
         try {
@@ -90,8 +97,10 @@ class DriveManager {
             System.out.print("Would you like to delete this file from the hard disk?(Y/N): ");
             Launcher.userInput.nextLine(); //@TODO elegant solution required
             String yesNoChoice = Launcher.userInput.nextLine();
+            Launcher.userInput.close();
             if (fileToUpload.exists() && (yesNoChoice.equalsIgnoreCase("y") || yesNoChoice.equalsIgnoreCase("yes"))) {
                 fileToUpload.delete();
+                System.exit(0);
             } else{
                 System.exit(0);
             }
