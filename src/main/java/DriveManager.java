@@ -28,7 +28,7 @@ class DriveManager {
 
         System.out.print("Enter folder name to display contents: ");
         String folderName = Launcher.userInput.next();
-        folderName = driveSingleSearcher("folder", "", folderName, service).getId(); //current workaround
+        folderName = driveSingleSearcher(false, "", folderName, service).getId(); //current workaround
         driveListSearcher(true,folderName,service); //@TODO only takes ID, not name, find reason why and fix
 
         System.out.print("Enter file name: ");
@@ -36,7 +36,7 @@ class DriveManager {
         String searchName = Launcher.userInput.nextLine();
         Launcher.userInput.close();
 
-        foundFile = driveSingleSearcher("file","",searchName,service);
+        foundFile = driveSingleSearcher(true,"",searchName,service);
 
         java.io.File dir = new java.io.File(storagePath);
         boolean mkdir = dir.mkdir();//doesn't replace if exists
@@ -74,10 +74,10 @@ class DriveManager {
             System.out.println();
             System.out.print("Enter folder name to store in (blank for root): ");
             String folderName = Launcher.userInput.next();
-            foundFolder = driveSingleSearcher("folder", "", folderName, service);
+            foundFolder = driveSingleSearcher(false, "", folderName, service);
             System.out.println();
 
-            fileCrosscheck = driveSingleSearcher("file", foundFolder.getId(), fileToUpload!=null?fileToUpload.getName():"", service);
+            fileCrosscheck = driveSingleSearcher(true, foundFolder.getId(), fileToUpload!=null?fileToUpload.getName():"", service);
             System.out.println("Upload confirmed successful");
 
             if (fileCrosscheck.getName() != null) {
@@ -114,8 +114,8 @@ class DriveManager {
         }
     }
 
-    //parents is folder
-    private File driveSingleSearcher(String objChoice, String folderName, String objName, Drive service) throws IOException{
+    //parents is folder //true is file, false is folder
+    private File driveSingleSearcher(boolean fileType, String folderName, String objName, Drive service) throws IOException{
         File foundObject = new File();
         String pageToken = null;
         String folderQuery = folderName;
@@ -127,7 +127,7 @@ class DriveManager {
             folderQuery = "'"+folderName+"' in parents and ";
         }
 
-        if(objChoice.equals("file")) {
+        if(fileType) {
             do {
                 FileList result = service.files().list()
                         .setQ(folderQuery+"mimeType != 'application/vnd.google-apps.folder' and name contains '"+objName+"' and trashed = false")
@@ -140,7 +140,7 @@ class DriveManager {
                 }
                 pageToken = result.getNextPageToken();
             } while (pageToken != null);
-        } else if(objChoice.equals("folder")){
+        } else{
             do {
                 FileList result = service.files().list()
                         .setQ(folderQuery+"mimeType = 'application/vnd.google-apps.folder' and name contains '"+objName+"' and trashed = false") //no folders, specific name text
@@ -172,7 +172,7 @@ class DriveManager {
                     System.out.printf("%s (%s)\n", file.getName(), file.getId());
                 }
             } while (pageToken != null);
-        } else if(!fileType){
+        } else{
             do {
                 result = service.files().list()
                         .setQ("'" + folderName + "' in parents and " + "mimeType = 'application/vnd.google-apps.folder' and trashed = false") //no folders, specific name text
