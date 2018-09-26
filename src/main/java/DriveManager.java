@@ -9,12 +9,17 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+
 import java.util.Collections;
 
 //text/plain, not markdown
 class DriveManager {
 
     private final String storagePath = System.getProperty("user.dir")+java.io.File.separator+"diskStorage";
+    private final String userPath = System.getProperty("user.dir")+java.io.File.separator+"userData";
 
     String downloadFile(Drive service) throws IOException {
         //actual hard modo - on startup, go through every file that exists and download a fresh copy
@@ -183,16 +188,42 @@ class DriveManager {
     }
 
     void runProcessor(String fileName){
-        try{
-            //@TODO File selector to find and store path to processor of choice
-            System.out.println("Running markdown processor...");
-            //@TODO Platform neutrality
-            Runtime.getRuntime().exec("\"C:\\Program Files\\iA Writer\\iAWriter.exe\" "+"\".\\diskStorage\\"+fileName+"\"");
-        } catch(Exception e){
-            System.out.println(e.getMessage());
-            System.out.println("Failed to open file using document processor!");
+        try {
+            String processorPath = "";
+            java.io.File[] dirList = new java.io.File(userPath).listFiles();
+                if (dirList != null) {
+                    for (java.io.File file : dirList) {
+                        if(file.getName().equals("processorDirectory.txt")){
+                            processorPath = file.getAbsolutePath();
+                            break;
+                        }
+                    }
+                }
+            if(!processorPath.isEmpty()){
+                BufferedReader reader = new BufferedReader(new FileReader(processorPath));
+                System.out.println("Running markdown processor...");
+                //@TODO Platform neutrality
+                Runtime.getRuntime().exec("\""+reader.readLine()+"\" "+"\".\\diskStorage\\"+fileName+"\"");
+                reader.close();
+            }else{
+                    FileDialog dialog = new FileDialog((Frame)null, "Select File to Open");
+                    dialog.setMode(FileDialog.LOAD);
+                    dialog.setDirectory(storagePath);
+                    dialog.setVisible(true);
+                    processorPath = dialog.getDirectory()+dialog.getFile();
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(userPath+java.io.File.separator+"processorDirectory.txt"));
+                    writer.write(processorPath);
+                    writer.close();
+
+                    System.out.println("Running markdown processor...");
+                    //@TODO Platform neutrality
+                    Runtime.getRuntime().exec("\""+processorPath+"\" "+"\".\\diskStorage\\"+fileName+"\"");
+                }
+            } catch(Exception e){
+                System.out.println(e.getMessage());
+                System.out.println("Failed to open file using document processor!");
+            }
         }
-    }
 
     void killProcessor(){
         String line ="";
