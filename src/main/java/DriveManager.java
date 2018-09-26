@@ -3,6 +3,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.OutputStream;
 import java.io.IOException;
@@ -41,24 +42,28 @@ class DriveManager {
     }
 
     void uploadFile(Drive service){
-        //@TODO Add the actual code see comments
-        //lunatic modo - extend program to run indefinitely until closed by user input, add timer to bring prog to
-        //attention then ask if you want to upload it to desktop
         java.io.File[] dirList = new java.io.File(storagePath).listFiles();
         java.io.File fileToUpload = null;
         File foundFolder;
         File fileCrosscheck;
         try {
-            if (dirList != null) {
-                int count = 1;
-                for (java.io.File file : dirList) {
-                    System.out.println(Integer.toString(count) + ". " + file.getName());
-                    count++;
-                }
-                System.out.print("Enter a file number: ");
-                int fileChoice = Launcher.userInput.nextInt();
-                fileToUpload = new java.io.File(storagePath+java.io.File.separator+dirList[fileChoice-1].getName());
-            }
+//            if (dirList != null) {
+//                int count = 1;
+//                for (java.io.File file : dirList) {
+//                    System.out.println(Integer.toString(count) + ". " + file.getName());
+//                    count++;
+//                }
+//                System.out.print("Enter a file number: ");
+//                int fileChoice = Launcher.userInput.nextInt();
+//                fileToUpload = new java.io.File(storagePath+java.io.File.separator+dirList[fileChoice-1].getName());
+//            }
+            FileDialog dialog = new FileDialog((Frame)null, "Select File to Open");
+            dialog.setMode(FileDialog.LOAD);
+            dialog.setDirectory(storagePath);
+            dialog.setVisible(true);
+            java.io.File[] file = dialog.getFiles();
+            fileToUpload = new java.io.File(storagePath+java.io.File.separator+file[0].getName());
+
             System.out.println("Folders found below:");
             driveListSearcher(false,"root", service);
             System.out.println();
@@ -92,6 +97,8 @@ class DriveManager {
             String yesNoChoice = Launcher.userInput.nextLine();
             if (fileToUpload.exists() && (yesNoChoice.equalsIgnoreCase("y") || yesNoChoice.equalsIgnoreCase("yes"))) {
                 fileToUpload.delete();
+            } else{
+                System.exit(0);
             }
         }
          catch (Exception e){
@@ -177,8 +184,9 @@ class DriveManager {
 
     void runProcessor(String fileName){
         try{
+            //@TODO File selector to find and store path to processor of choice
             System.out.println("Running markdown processor...");
-//            String pathToProcessor = ""; //@TODO Platform neutrality
+            //@TODO Platform neutrality
             Runtime.getRuntime().exec("\"C:\\Program Files\\iA Writer\\iAWriter.exe\" "+"\".\\diskStorage\\"+fileName+"\"");
         } catch(Exception e){
             System.out.println(e.getMessage());
