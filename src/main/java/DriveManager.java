@@ -52,16 +52,6 @@ class DriveManager {
         File foundFolder;
         File fileCrosscheck;
         try {
-//            if (dirList != null) {
-//                int count = 1;
-//                for (java.io.File file : dirList) {
-//                    System.out.println(Integer.toString(count) + ". " + file.getName());
-//                    count++;
-//                }
-//                System.out.print("Enter a file number: ");
-//                int fileChoice = Launcher.userInput.nextInt();
-//                fileToUpload = new java.io.File(storagePath+java.io.File.separator+dirList[fileChoice-1].getName());
-//            }
             FileDialog dialog = new FileDialog((Frame)null, "Select File to Open");
             dialog.setMode(FileDialog.LOAD);
             dialog.setDirectory(storagePath);
@@ -70,7 +60,7 @@ class DriveManager {
             fileToUpload = new java.io.File(storagePath+java.io.File.separator+file[0].getName());
 
             System.out.println("Folders found below:");
-            driveListSearcher(false,"root", service);
+            driveListSearcher(false,"", service);
             System.out.println();
             System.out.print("Enter folder name to store in (blank for root): ");
             String folderName = Launcher.userInput.next();
@@ -121,7 +111,7 @@ class DriveManager {
         String folderQuery = folderName;
 
         if(folderQuery.equals("")){
-            folderQuery = "";
+            folderQuery = "'root' in parents and ";
         }
         else{
             folderQuery = "'"+folderName+"' in parents and ";
@@ -159,11 +149,20 @@ class DriveManager {
 
     private void driveListSearcher(boolean fileType, String folderName, Drive service) throws IOException{
         String pageToken = null;
+        String folderQuery = folderName;
         FileList result;
+
+        if(folderQuery.equals("")){
+            folderQuery = "'root' in parents and ";
+        }
+        else{
+            folderQuery = "'"+folderName+"' in parents and ";
+        }
+
         if(fileType) {
             do {
                 result = service.files().list()
-                        .setQ("'" + folderName + "' in parents and " + "mimeType != 'application/vnd.google-apps.folder' and trashed = false") //no folders, specific name text
+                        .setQ(folderQuery+"mimeType != 'application/vnd.google-apps.folder' and trashed = false")
                         .setFields("nextPageToken, files(name, id, parents)")
                         .setPageToken(pageToken)
                         .execute();
@@ -175,7 +174,7 @@ class DriveManager {
         } else{
             do {
                 result = service.files().list()
-                        .setQ("'" + folderName + "' in parents and " + "mimeType = 'application/vnd.google-apps.folder' and trashed = false") //no folders, specific name text
+                        .setQ(folderQuery+"mimeType = 'application/vnd.google-apps.folder' and trashed = false")
                         .setFields("nextPageToken, files(name, id, parents)")
                         .setPageToken(pageToken)
                         .execute();
