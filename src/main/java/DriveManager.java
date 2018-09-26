@@ -253,17 +253,6 @@ class DriveManager {
                 }
             }while((line = tasks.readLine())!=null);
 
-//            while((line = tasks.readLine())!=null) {
-//                PIDInfo += line;
-//            }
-////            tasks.close();
-//            if(PIDInfo.contains("iAWriter.exe")){
-//                Runtime.getRuntime().exec("taskkill /IM iAWriter.exe /F");
-//                System.out.println("Successfully killed processor.");
-//            } else{
-//                System.out.println("Processor already dead, no need to kill it.");
-//            }
-
         } catch(Exception e){
             System.out.println(e.getMessage());
             System.out.println("Failed to kill processor.");

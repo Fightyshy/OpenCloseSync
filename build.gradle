@@ -4,22 +4,11 @@ apply plugin: 'application'
 mainClassName = 'Launcher'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-version = '1.1'
+version = '1.2'
 
 repositories {
     mavenCentral()
 }
-
-//task fatJar(type: Jar) {
-//    manifest {
-//        attributes 'Implementation-Title': 'Gradle Jar File Example',
-//                'Implementation-Version': version,
-//                'Main-Class': 'Launcher'
-//    }
-//    baseName = project.name + '-all'
-//    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-//    with jar
-//}
 
 dependencies {
     compile 'com.google.api-client:google-api-client:1.23.0'
