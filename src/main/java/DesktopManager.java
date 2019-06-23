@@ -7,20 +7,24 @@ import java.io.InputStreamReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.File;
 
 class DesktopManager{
 
-    private final String storagePath = System.getProperty("user.dir")+java.io.File.separator+"diskStorage";
-    private final String userPath = System.getProperty("user.dir")+java.io.File.separator+"userData";
+    private final String storagePath = System.getProperty("user.dir")+File.separator+"diskStorage";
+    private final String userPath = System.getProperty("user.dir")+File.separator+"userData";
 
-
+    //@TODO Add checks for invalid path
+    //@TODO Change to detect process being terminated
+    //@TODO Change to prompt to upload when process terminated
+    //@TODO Add multi-program support with file association
     void runProgram(String fileName){
         try{
             String programPath = "";
-            java.io.File[] dirList = new java.io.File(userPath).listFiles();
+            File[] dirList = new File(userPath).listFiles();
             if(dirList != null){
-                for(java.io.File file : dirList){
-                    if(file.getName().equals("processorDirectory.txt")){
+                for(File file : dirList){
+                    if(file.getName().equals("programPath.txt")) {
                         programPath = file.getAbsolutePath();
                         break;
                     }
@@ -28,24 +32,27 @@ class DesktopManager{
             }
 
             if(!programPath.isEmpty()){
-                BufferedReader reader = new BufferedReader(new FileReader (programPath));
                 System.out.println("Running program...");
-                Runtime.getRuntime().exec("\""+reader.readLine()+"\" "+"\".\\diskStorage\\"+fileName+"\"");
+                BufferedReader reader = new BufferedReader(new FileReader (programPath));
+                Process executeProg = new ProcessBuilder(reader.readLine(),
+                        storagePath+File.separator+fileName).start();
                 reader.close();
             }
             else{
-                FileDialog dialog = new FileDialog((Frame)null, "Select File to Open");
+                FileDialog dialog = new FileDialog((Frame)null, "Select program to use");
                 dialog.setMode(FileDialog.LOAD);
                 dialog.setDirectory(storagePath);
                 dialog.setVisible(true);
+
                 programPath = dialog.getDirectory()+dialog.getFile();
-                BufferedWriter writer = new BufferedWriter(new FileWriter(userPath+java.io.File.separator+"processorDirectory.txt"));
+                BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(userPath+File.separator+"programPath.txt"));
                 writer.write(programPath);
                 writer.close();
 
-                System.out.println("Running markdown processor...");
-                //@TODO Platform neutrality
-                Runtime.getRuntime().exec("\""+programPath+"\" "+"\".\\diskStorage\\"+fileName+"\"");
+                System.out.println("Running program...");
+                Process executeProg = new ProcessBuilder(programPath,
+                    storagePath+File.separator+fileName).start();
             }
         }
         catch(Exception e){
