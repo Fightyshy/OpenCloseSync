@@ -14,6 +14,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 
 import java.util.Collections;
+import java.util.Stack;
 
 //text/plain, not markdown
 class DriveManager {
@@ -21,37 +22,74 @@ class DriveManager {
     private final String storagePath = System.getProperty("user.dir")+java.io.File.separator+"diskStorage";
     private final String userPath = System.getProperty("user.dir")+java.io.File.separator+"userData";
 
-    //@TODO downloadFile and uploadFile -> find platform neutral clear console or update to different console logging
+    //@TODO Add singleton file selection, change driveSingleSearcher
 
-    String downloadFile(Drive service) throws IOException {
-        //actual hard modo - on startup, go through every file that exists and download a fresh copy
-        //@TODO Add warning feature for overwriting existing file
-        File foundFile;
-        String folderName;
+    String downloadFile(Drive service) throws IOException{
+        File foundFile = null;
+        String folderName = "";
+        String option;
+        Stack<String> navPath = new Stack<String>();
 
-        System.out.println("Folders in GDrive below: ");
+        navPath.push("root");
+
+        System.out.println("OpenCloseSync has fouknd the following files below in current folder: ");
         driveListSearcher(false,"",service);
+        driveListSearcher(true, "", service);
         System.out.println();
 
-        System.out.print("Enter folder name to display contents: ");
-        folderName = Launcher.userInput.next();
-        folderName = driveSingleSearcher(false, "", folderName, service).getId(); //current workaround
-        driveListSearcher(true,folderName,service); //@TODO only takes ID, not name, find reason why and fix
-
-        System.out.println();
-        System.out.print("Enter file name: ");
         Launcher.userInput.nextLine();
-        String searchName = Launcher.userInput.nextLine();
-        Launcher.userInput.close();
-
-        foundFile = driveSingleSearcher(true,folderName,searchName,service);
-
-        java.io.File dir = new java.io.File(storagePath);
-        dir.mkdir();//doesn't replace if exists
-        OutputStream outputStream = new FileOutputStream(new java.io.File(storagePath+java.io.File.separator+foundFile.getName()));
-        service.files().get(foundFile.getId()).executeMediaAndDownloadTo(outputStream);
-        outputStream.close();
-        return foundFile.getName();
+        //@TODO Add file checks
+        //@TODO Add option to export google docs
+        do{
+            System.out.print("Input command: ");
+            option = Launcher.userInput.nextLine();
+            switch(option.substring(0,2)){
+                case "cd":{
+                    System.out.print("Opening: ");
+                    folderName = driveSingleSearcher(false,
+                            folderName.equals("")?"":folderName,option.substring(3),service).getId();
+                    navPath.push(folderName);
+                    System.out.println("Displaying contents:");
+                    driveListSearcher(false, folderName,service);
+                    driveListSearcher(true, folderName,service);
+                    break;
+                }
+                case "up":{
+                    if(folderName.equals("")||navPath.empty()){
+                        System.out.println("Already at root folder!");
+                        break;
+                    }
+                    else{
+                    //Hell no I ain't self-implementing a stack
+                    System.out.println("Going up folder level...");
+                    System.out.println("Displaying contents:");
+                    navPath.pop();
+                    folderName = navPath.peek();
+                    driveListSearcher(false, folderName,service);
+                    driveListSearcher(true,folderName,service);
+                    break;
+                    }
+                }
+                case "dl":{
+                    foundFile = driveSingleSearcher(true,folderName,option.substring(3),service);
+                    java.io.File dir = new java.io.File(storagePath);
+                    dir.mkdir();
+                    OutputStream outputStream = new FileOutputStream(new java.io.File(storagePath+java.io.File.separator+foundFile.getName()));
+                    service.files().get(foundFile.getId()).executeMediaAndDownloadTo(outputStream);
+                    outputStream.close();
+                    return foundFile.getName();
+                }
+                case "ex":{
+                    System.out.println("Exiting program now...");
+                    System.exit( 0);
+                }
+                default:
+                    System.out.println("Invalid input command!");
+                    System.out.println("Commands are cd, up, dl, ex");
+                    break;
+            }
+        }while(foundFile==null);
+        return null;
     }
 
     void uploadFile(Drive service){
@@ -134,7 +172,7 @@ class DriveManager {
                         .setPageToken(pageToken)
                         .execute();
                 for (File file : result.getFiles()) {
-                    System.out.printf("Found file: %s (%s)\n", file.getName(), file.getId());
+                    System.out.printf("(File): %s (%s)\n", file.getName(), file.getId());
                     foundObject = file;
                 }
                 pageToken = result.getNextPageToken();
@@ -147,7 +185,7 @@ class DriveManager {
                         .setPageToken(pageToken)
                         .execute();
                 for (File file : result.getFiles()) {
-                    System.out.printf("Found folder: %s (%s)\n", file.getName(), file.getId());
+                    System.out.printf("(Folder): %s (%s)\n", file.getName(), file.getId());
                     foundObject = file;
                 }
                 pageToken = result.getNextPageToken();
@@ -177,7 +215,7 @@ class DriveManager {
                         .execute();
                 pageToken = result.getNextPageToken();
                 for(File file:result.getFiles()){
-                    System.out.printf("%s (%s)\n", file.getName(), file.getId());
+                    System.out.printf("(File): %s (%s)\n", file.getName(), file.getId());
                 }
             } while (pageToken != null);
         } else{
@@ -188,7 +226,7 @@ class DriveManager {
                         .setPageToken(pageToken)
                         .execute();
                 for(File file:result.getFiles()){
-                    System.out.printf("%s (%s)\n", file.getName(), file.getId());
+                    System.out.printf("(Folder): %s (%s)\n", file.getName(), file.getId());
                 }
                 pageToken = result.getNextPageToken();
             } while (pageToken != null);

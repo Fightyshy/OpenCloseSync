@@ -18,6 +18,11 @@ import java.util.Scanner;
 
 public class Launcher {
 
+    //@TODO Add option to change set program
+    //@TODO Add force set program to use on first start(?)
+    //@TODO Change Drive Scope to lower level scope
+    //@TODO Add more encryption to auth if can
+
     private static final String APPLICATION_NAME = "OpenCloseSync";
     private static JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static String TOKENS_DIRECTORY_PATH = "tokens";
