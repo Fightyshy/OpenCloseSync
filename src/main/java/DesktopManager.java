@@ -83,7 +83,7 @@ class DesktopManager{
             BufferedReader tasks = new BufferedReader(new InputStreamReader(kill.getInputStream()));
             BufferedReader programFinder = new BufferedReader(new FileReader(programPath));
             program = programFinder.readLine();
-            program = program.substring(program.lastIndexOf("\\")+1);
+            program = program.substring(program.lastIndexOf(File.separator)+1);
             do{
                 PIDInfo.append(line);
                 if(PIDInfo.toString().contains(program)){
