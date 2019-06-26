@@ -18,19 +18,31 @@ class DesktopManager{
     //@TODO Change to detect process being terminated
     //@TODO Change to prompt to upload when process terminated
     //@TODO Add multi-program support with file association
-    void runProgram(String fileName){
-        try{
+
+    String openProgramPath() {
+        try {
             String programPath = "";
             File[] dirList = new File(userPath).listFiles();
-            if(dirList != null){
-                for(File file : dirList){
-                    if(file.getName().equals("programPath.txt")) {
+            if (dirList != null) {
+                for (File file : dirList) {
+                    if (file.getName().equals("programPath.txt")) {
                         programPath = file.getAbsolutePath();
                         break;
                     }
                 }
             }
+            return programPath;
+        }
+        catch(Exception e){
+            System.out.println("programPath not found!");
+        }
+        return null;
+    }
 
+    void runProgram(String fileName){
+
+            String programPath = openProgramPath();
+        try{
             if(!programPath.isEmpty()){
                 System.out.println("Running program...");
                 BufferedReader reader = new BufferedReader(new FileReader (programPath));
