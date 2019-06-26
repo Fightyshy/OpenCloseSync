@@ -40,7 +40,6 @@ class DesktopManager{
     }
 
     void runProgram(String fileName){
-
             String programPath = openProgramPath();
         try{
             if(!programPath.isEmpty()){
@@ -76,15 +75,19 @@ class DesktopManager{
     void killProgram(){
         String line ="";
         StringBuilder PIDInfo = new StringBuilder(20);
-        String wordProcessor = "iAWriter.exe";
+        String programPath = openProgramPath();
+        String program = "";
 
         try{
             Process kill = Runtime.getRuntime().exec("tasklist");
             BufferedReader tasks = new BufferedReader(new InputStreamReader(kill.getInputStream()));
+            BufferedReader programFinder = new BufferedReader(new FileReader(programPath));
+            program = programFinder.readLine();
+            program = program.substring(program.lastIndexOf("\\")+1);
             do{
                 PIDInfo.append(line);
-                if(PIDInfo.toString().contains(wordProcessor)){
-                    Runtime.getRuntime().exec("taskkill /IM iAWriter.exe /F");
+                if(PIDInfo.toString().contains(program)){
+                    Runtime.getRuntime().exec("taskkill /IM "+program+" /F");
                     System.out.println("Successfully killed processor.");
                     break;
                 }
@@ -92,8 +95,8 @@ class DesktopManager{
                     System.out.println("Processor already dead, no need to kill it.");
                 }
             } while((line = tasks.readLine())!=null);
+            tasks.close();
         }
-
         catch(Exception e){
             System.out.println(e.getMessage());
             System.out.println("Failed to kill processor.");

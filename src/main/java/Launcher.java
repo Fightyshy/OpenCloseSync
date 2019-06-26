@@ -77,7 +77,7 @@ public class Launcher {
             }
             case 2: {
                 desktopSide.killProgram();
-                driverSide.uploadFile(apiService);
+//                driverSide.uploadFile(apiService);
                 break;
             }
             case 3: System.exit(0);
