@@ -20,24 +20,23 @@ class DesktopManager{
     //@TODO Add multi-program support with file association
 
     String openProgramPath() {
+        String programPath = "";
         try {
-            String programPath = "";
             File[] dirList = new File(userPath).listFiles();
             if (dirList != null) {
                 for (File file : dirList) {
                     if (file.getName().equals("programPath.txt")) {
-                        programPath = file.getAbsolutePath();
-                        break;
+                        BufferedReader reader = new BufferedReader(new FileReader (file.getAbsolutePath()));
+                        programPath = reader.readLine();
+                        return programPath;
                     }
                 }
             }
-            BufferedReader reader = new BufferedReader(new FileReader (programPath));
-            return reader.readLine();
         }
         catch(Exception e){
             System.out.println("programPath not found!");
         }
-        return null;
+        return programPath;
     }
 
     //string of program path
