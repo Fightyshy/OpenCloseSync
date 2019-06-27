@@ -11,6 +11,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 
+import java.awt.*;
 import java.io.*;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,6 @@ import java.util.Scanner;
 
 public class Launcher {
 
-    //@TODO Add option to change set program
     //@TODO Add force set program to use on first start(?)
     //@TODO Change Drive Scope to lower level scope
     //@TODO Add more encryption to auth if can
@@ -50,9 +50,6 @@ public class Launcher {
     }
 
     public static void main(String... args) throws IOException {
-        System.out.println("1 for download file, 2 for upload file, 3 to set program to open, 4 for exit.");
-        System.out.print("Select an option: ");
-        int option = userInput.nextInt();
 
         try{
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -69,22 +66,28 @@ public class Launcher {
         // End auth, start activity
         DriveManager driverSide = new DriveManager();
         DesktopManager desktopSide = new DesktopManager();
-        switch (option){
-            case 1: {
-                String loc = driverSide.downloadFile(apiService);
-                desktopSide.runProgram(loc);
-                break;
+        do {
+            System.out.println("1 for download file, 2 for upload file, 3 to set program to open, 4 for exit.");
+            System.out.print("Select an option: ");
+            int option = userInput.nextInt();
+            switch (option) {
+                case 1: {
+                    String loc = driverSide.downloadFile(apiService);
+                    desktopSide.runProgram(loc);
+                    System.exit(0);
+                }
+                case 2: {
+                    desktopSide.killProgram();
+                    driverSide.uploadFile(apiService);
+                    System.exit(0);
+                }
+                case 3: {
+                    desktopSide.setProgram();
+                    break;
+                }
+                case 4:
+                    System.exit(0);
             }
-            case 2: {
-                desktopSide.killProgram();
-                driverSide.uploadFile(apiService);
-                break;
-            }
-            case 3: {
-
-                break;
-            }
-            case 4: System.exit(0);
-        }
+        }while(true);
     }
 }
