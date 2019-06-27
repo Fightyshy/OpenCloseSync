@@ -31,7 +31,8 @@ class DesktopManager{
                     }
                 }
             }
-            return programPath;
+            BufferedReader reader = new BufferedReader(new FileReader (programPath));
+            return reader.readLine();
         }
         catch(Exception e){
             System.out.println("programPath not found!");
@@ -72,10 +73,8 @@ class DesktopManager{
         try{
             if(!programPath.isEmpty()){
                 System.out.println("Running program...");
-                BufferedReader reader = new BufferedReader(new FileReader (programPath));
-                Process executeProg = new ProcessBuilder(reader.readLine(),
+                Process executeProg = new ProcessBuilder(programPath,
                         storagePath+File.separator+fileName).start();
-                reader.close();
             }
             else{
                 System.out.println("programPath.txt not detected, forcing selection now...");
