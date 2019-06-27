@@ -50,7 +50,7 @@ public class Launcher {
     }
 
     public static void main(String... args) throws IOException {
-        System.out.println("1 for download file, 2 for upload file, 3 for exit.");
+        System.out.println("1 for download file, 2 for upload file, 3 to set program to open, 4 for exit.");
         System.out.print("Select an option: ");
         int option = userInput.nextInt();
 
@@ -77,10 +77,14 @@ public class Launcher {
             }
             case 2: {
                 desktopSide.killProgram();
-//                driverSide.uploadFile(apiService);
+                driverSide.uploadFile(apiService);
                 break;
             }
-            case 3: System.exit(0);
+            case 3: {
+
+                break;
+            }
+            case 4: System.exit(0);
         }
     }
 }

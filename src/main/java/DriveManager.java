@@ -19,8 +19,8 @@ import java.util.Stack;
 //text/plain, not markdown
 class DriveManager {
 
-    private final String storagePath = System.getProperty("user.dir")+java.io.File.separator+"diskStorage";
-    private final String userPath = System.getProperty("user.dir")+java.io.File.separator+"userData";
+    public final String storagePath = System.getProperty("user.dir")+java.io.File.separator+"diskStorage";
+    public final String userPath = System.getProperty("user.dir")+java.io.File.separator+"userData";
 
     //@TODO Add singleton file selection, change driveSingleSearcher
 
@@ -32,7 +32,7 @@ class DriveManager {
 
         navPath.push("root");
 
-        System.out.println("OpenCloseSync has fouknd the following files below in current folder: ");
+        System.out.println("OpenCloseSync has found the following files below in current folder: ");
         driveListSearcher(false,"",service);
         driveListSearcher(true, "", service);
         System.out.println();
@@ -75,6 +75,7 @@ class DriveManager {
                     java.io.File dir = new java.io.File(storagePath);
                     dir.mkdir();
                     OutputStream outputStream = new FileOutputStream(new java.io.File(storagePath+java.io.File.separator+foundFile.getName()));
+                    //separating docs and binaries
                     service.files().get(foundFile.getId()).executeMediaAndDownloadTo(outputStream);
                     outputStream.close();
                     return foundFile.getName();

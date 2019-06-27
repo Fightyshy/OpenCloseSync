@@ -15,7 +15,7 @@ class DesktopManager{
     private final String userPath = System.getProperty("user.dir")+File.separator+"userData";
 
     //@TODO Add checks for invalid path
-    //@TODO Change to detect process being terminated
+    //@TODO Change to detect process being terminated //impossible(?)
     //@TODO Change to prompt to upload when process terminated
     //@TODO Add multi-program support with file association
 
@@ -39,6 +39,34 @@ class DesktopManager{
         return null;
     }
 
+    //string of program path
+    String setProgram(){
+        String path ="";
+        String exten = "";
+        try{
+            FileDialog dialog = new FileDialog((Frame)null, "Select program to use");
+            dialog.setMode(FileDialog.LOAD);
+            dialog.setDirectory(storagePath);
+            dialog.setVisible(true);
+
+            path = dialog.getDirectory()+dialog.getFile();
+            exten = path.substring(path.lastIndexOf(".")+1);
+
+            if(exten.equalsIgnoreCase("exe")){
+                BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(userPath+File.separator+"programPath.txt"));
+                writer.write(path);
+                writer.close();
+            }else{
+                System.out.println("File selected is not a program, try again");
+                path = setProgram();
+            }
+        }catch(IOException io){
+            System.out.println("Invalid program selection! Select a proper one this time!");
+        }
+        return path;
+    }
+
     void runProgram(String fileName){
             String programPath = openProgramPath();
         try{
@@ -50,16 +78,8 @@ class DesktopManager{
                 reader.close();
             }
             else{
-                FileDialog dialog = new FileDialog((Frame)null, "Select program to use");
-                dialog.setMode(FileDialog.LOAD);
-                dialog.setDirectory(storagePath);
-                dialog.setVisible(true);
-
-                programPath = dialog.getDirectory()+dialog.getFile();
-                BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(userPath+File.separator+"programPath.txt"));
-                writer.write(programPath);
-                writer.close();
+                System.out.println("programPath.txt not detected, forcing selection now...");
+                programPath = setProgram();
 
                 System.out.println("Running program...");
                 Process executeProg = new ProcessBuilder(programPath,
