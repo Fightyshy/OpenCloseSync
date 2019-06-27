@@ -14,7 +14,7 @@ class DesktopManager{
     private final String storagePath = System.getProperty("user.dir")+File.separator+"diskStorage";
     private final String userPath = System.getProperty("user.dir")+File.separator+"userData";
 
-    //@TODO Add checks for invalid path
+    //@TODO Add checks for invalid upload
     //@TODO Change to detect process being terminated //impossible(?)
     //@TODO Change to prompt to upload when process terminated
     //@TODO Add multi-program support with file association
@@ -92,7 +92,7 @@ class DesktopManager{
     }
 
     void killProgram(){
-        String line ="";
+        String line = "";
         StringBuilder PIDInfo = new StringBuilder(20);
         String programPath = openProgramPath();
         String program = "";
@@ -100,13 +100,12 @@ class DesktopManager{
         try{
             Process kill = Runtime.getRuntime().exec("tasklist");
             BufferedReader tasks = new BufferedReader(new InputStreamReader(kill.getInputStream()));
-            BufferedReader programFinder = new BufferedReader(new FileReader(programPath));
-            program = programFinder.readLine();
-            program = program.substring(program.lastIndexOf(File.separator)+1);
+            program = programPath.substring(programPath.lastIndexOf(File.separator)+1);
             do{
                 PIDInfo.append(line);
                 if(PIDInfo.toString().contains(program)){
-                    Runtime.getRuntime().exec("taskkill /IM "+program+" /F");
+                    Runtime.getRuntime().exec("taskkill "+"/IM "+"\""+program+"\""+" /F");
+//                    Process closeProgram = new ProcessBuilder("cmd","/C","taskkill","/IM","\"",program,"\"","/F").start(); //working on it
                     System.out.println("Successfully killed processor.");
                     break;
                 }
