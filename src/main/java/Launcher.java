@@ -11,7 +11,6 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 
-import java.awt.*;
 import java.io.*;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +18,6 @@ import java.util.Scanner;
 
 public class Launcher {
 
-    //@TODO Add force set program to use on first start(?)
     //@TODO Change Drive Scope to lower level scope
     //@TODO Add more encryption to auth if can
 
@@ -66,6 +64,14 @@ public class Launcher {
         // End auth, start activity
         DriveManager driverSide = new DriveManager();
         DesktopManager desktopSide = new DesktopManager();
+
+        //@TODO temp solution
+        if(desktopSide.openProgramPath().isEmpty()){
+            System.out.println("No set program detected, either file missing or first time exec.");
+            System.out.println("Select a program:");
+            desktopSide.setProgram();
+        }
+
         do {
             System.out.println("1 for download file, 2 for upload file, 3 to set program to open, 4 for exit.");
             System.out.print("Select an option: ");
