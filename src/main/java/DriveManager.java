@@ -4,14 +4,9 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
 
 import java.util.Collections;
 import java.util.Stack;
@@ -40,6 +35,7 @@ class DriveManager {
         Launcher.userInput.nextLine();
         //@TODO Add file checks
         //@TODO Add option to export google docs
+        //@TODO Add mkdir option while uploading
         do{
             System.out.print("Input command: ");
             option = Launcher.userInput.nextLine();
@@ -54,7 +50,7 @@ class DriveManager {
                     driveListSearcher(true, folderName,service);
                     break;
                 }
-                case "up":{
+                case "..":{
                     if(folderName.equals("")||navPath.empty()){
                         System.out.println("Already at root folder!");
                         break;
@@ -86,7 +82,7 @@ class DriveManager {
                 }
                 default:
                     System.out.println("Invalid input command!");
-                    System.out.println("Commands are cd, up, dl, ex");
+                    System.out.println("Commands are cd, .., dl, ex");
                     break;
             }
         }while(foundFile==null);
@@ -97,6 +93,10 @@ class DriveManager {
         java.io.File fileToUpload;
         File foundFolder;
         File fileCrosscheck;
+        String option;
+        String folderName = "";
+        Stack<String> navPath = new Stack<String>();
+
         try {
             FileDialog dialog = new FileDialog((Frame)null, "Select File to Open");
             dialog.setMode(FileDialog.LOAD);
@@ -105,11 +105,53 @@ class DriveManager {
             java.io.File[] file = dialog.getFiles();
             fileToUpload = new java.io.File(storagePath+java.io.File.separator+file[0].getName());
 
-            System.out.println("Folders found below:");
+            //serverside ops
+            Launcher.userInput.nextLine();
+            System.out.println("OpenCloseSync has found the following folders for upload:");
             driveListSearcher(false,"", service);
             System.out.println();
+
+            do{
+                System.out.print("Input command: ");
+                option = Launcher.userInput.nextLine();
+                switch(option.substring(0,2)){
+                    case "cd":{
+                        System.out.print("Opening: ");
+                        folderName = driveSingleSearcher(false,
+                                folderName.equals("")?"":folderName,option.substring(3),service).getId();
+                        navPath.push(folderName);
+                        System.out.println("Displaying contents:");
+                        driveListSearcher(false, folderName,service);
+                        break;
+                    }
+                    case "..":{
+                        if(folderName.equals("")||navPath.empty()){
+                            System.out.println("Already at root folder!");
+                            break;
+                        }
+                        else{
+                            //Hell no I ain't self-implementing a stack x2
+                            System.out.println("Going up folder level...");
+                            System.out.println("Displaying contents:");
+                            navPath.pop();
+                            folderName = navPath.peek();
+                            driveListSearcher(false, folderName,service);
+                            break;
+                        }
+                    }
+                    case "ex":{
+                        System.out.println("Exiting program now...");
+                        System.exit( 0);
+                    }
+                    default:
+                        System.out.println("Invalid input command!");
+                        System.out.println("Commands are cd, .., dl, ex");
+                        break;
+                }
+            }while(true);
+
             System.out.print("Enter folder name to store in (blank for root): ");
-            String folderName = Launcher.userInput.next();
+            folderName = Launcher.userInput.next();
             foundFolder = driveSingleSearcher(false, "", folderName, service);
             System.out.println();
 
