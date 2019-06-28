@@ -91,9 +91,13 @@ class DriveManager {
 
     void uploadFile(Drive service){
         java.io.File fileToUpload;
+        File foundFolder;
+        File fileCrosscheck;
         String option;
         String folderName = "";
         Stack<String> navPath = new Stack<String>();
+
+        navPath.push("root"); //set root folder
 
         try {
             FileDialog dialog = new FileDialog((Frame)null, "Select File to Open");
@@ -110,8 +114,6 @@ class DriveManager {
             System.out.println();
 
             do{
-                File foundFolder = new File();
-                File fileCrosscheck = new File();
                 System.out.print("Input command: ");
                 option = Launcher.userInput.nextLine();
                 System.out.println();
@@ -131,7 +133,7 @@ class DriveManager {
                             break;
                         }
                         else{
-                            //Hell no I ain't self-implementing a stack x2
+                            //Hell no I ain't self-implementing a stack
                             System.out.println("Going up folder level...");
                             System.out.println("Displaying contents:");
                             navPath.pop();
@@ -148,9 +150,39 @@ class DriveManager {
                         System.out.println("Folder "+newFolder.getName()+" created.");
                         break;
                     }
-                    case "up":{
-
-                    }
+//                    case "up":{
+//                        fileCrosscheck = driveSingleSearcher(true, foundFolder.getId(),
+//                                fileToUpload!=null?fileToUpload.getName():"",service);
+//
+//                        if (fileCrosscheck.getName() != null) {
+//                            FileContent toUpdate = new FileContent("text/plain", fileToUpload);
+//                            File content = new File();
+//                            content.setName(fileToUpload.getName());
+//                            content.setMimeType("text/plain");
+//                            service.files().update(fileCrosscheck.getId(), content, toUpdate).execute();
+//                            System.out.println("Old file overwritten.");
+//                        } else {
+//                            File metadata = new File();
+//                            metadata.setName(fileToUpload!=null?fileToUpload.getName():"");
+//                            metadata.setMimeType("text/plain");
+//                            metadata.setParents(Collections.singletonList(foundFolder.getId()));
+//                            FileContent content = new FileContent("text/plain", fileToUpload);
+//                            service.files().create(metadata, content).setFields("id, parents").execute();
+//                            System.out.println("New file uploaded to drive.");
+//                        }
+//
+//                        System.out.print("Would you like to delete this file from the hard disk?(Y/N): ");
+//                        Launcher.userInput.nextLine(); //@TODO elegant solution required
+//                        String yesNoChoice = Launcher.userInput.nextLine();
+//                        Launcher.userInput.close();
+//                        if (fileToUpload.exists() && (yesNoChoice.equalsIgnoreCase("y") || yesNoChoice.equalsIgnoreCase("yes"))) {
+//                            fileToUpload.delete();
+//                            System.exit(0);
+//                        } else{
+//                            System.exit(0);
+//                        }
+//                        break;
+//                    }
                     case "ex":{
                         System.out.println("Exiting program now...");
                         System.exit( 0);
@@ -162,30 +194,11 @@ class DriveManager {
                 }
             }while(true);
 
+//            find folder
 //            System.out.print("Enter folder name to store in (blank for root): ");
 //            folderName = Launcher.userInput.next();
 //            foundFolder = driveSingleSearcher(false, "", folderName, service);
 //            System.out.println();
-//
-//            fileCrosscheck = driveSingleSearcher(true, foundFolder.getId(), fileToUpload!=null?fileToUpload.getName():"", service);
-//            System.out.println("Upload confirmed successful");
-//
-//            if (fileCrosscheck.getName() != null) {
-//                FileContent toUpdate = new FileContent("text/plain", fileToUpload);
-//                File content = new File();
-//                content.setName(fileToUpload.getName());
-//                content.setMimeType("text/plain");
-//                service.files().update(fileCrosscheck.getId(), content, toUpdate).execute();
-//                System.out.println("Overwritten old file and deleting physical...");
-//            } else {
-//                File metadata = new File();
-//                metadata.setName(fileToUpload!=null?fileToUpload.getName():"");
-//                metadata.setMimeType("text/plain");
-//                metadata.setParents(Collections.singletonList(foundFolder.getId()));
-//                FileContent content = new FileContent("text/plain", fileToUpload);
-//                service.files().create(metadata, content).setFields("id, parents").execute();
-//                System.out.println("No old file was found so a new one was created, deleting physical...");
-//            }
 //
 //            System.out.print("Would you like to delete this file from the hard disk?(Y/N): ");
 //            Launcher.userInput.nextLine(); //@TODO elegant solution required
