@@ -150,39 +150,41 @@ class DriveManager {
                         System.out.println("Folder "+newFolder.getName()+" created.");
                         break;
                     }
-//                    case "up":{
-//                        fileCrosscheck = driveSingleSearcher(true, foundFolder.getId(),
-//                                fileToUpload!=null?fileToUpload.getName():"",service);
-//
-//                        if (fileCrosscheck.getName() != null) {
-//                            FileContent toUpdate = new FileContent("text/plain", fileToUpload);
-//                            File content = new File();
-//                            content.setName(fileToUpload.getName());
-//                            content.setMimeType("text/plain");
-//                            service.files().update(fileCrosscheck.getId(), content, toUpdate).execute();
-//                            System.out.println("Old file overwritten.");
-//                        } else {
-//                            File metadata = new File();
-//                            metadata.setName(fileToUpload!=null?fileToUpload.getName():"");
-//                            metadata.setMimeType("text/plain");
-//                            metadata.setParents(Collections.singletonList(foundFolder.getId()));
-//                            FileContent content = new FileContent("text/plain", fileToUpload);
-//                            service.files().create(metadata, content).setFields("id, parents").execute();
-//                            System.out.println("New file uploaded to drive.");
-//                        }
-//
-//                        System.out.print("Would you like to delete this file from the hard disk?(Y/N): ");
-//                        Launcher.userInput.nextLine(); //@TODO elegant solution required
-//                        String yesNoChoice = Launcher.userInput.nextLine();
-//                        Launcher.userInput.close();
-//                        if (fileToUpload.exists() && (yesNoChoice.equalsIgnoreCase("y") || yesNoChoice.equalsIgnoreCase("yes"))) {
-//                            fileToUpload.delete();
-//                            System.exit(0);
-//                        } else{
-//                            System.exit(0);
-//                        }
-//                        break;
-//                    }
+                    case "up":{
+                        folderName = navPath.peek();
+//                        foundFolder = driveSingleSearcher(false,folderName,folderName,service);
+                        fileCrosscheck = driveSingleSearcher(true, folderName,
+                                fileToUpload!=null?fileToUpload.getName():"",service);
+
+                        if (fileCrosscheck.getName() != null) {
+                            FileContent toUpdate = new FileContent("text/plain", fileToUpload);
+                            File content = new File();
+                            content.setName(fileToUpload.getName());
+                            content.setMimeType("text/plain");
+                            service.files().update(fileCrosscheck.getId(), content, toUpdate).execute();
+                            System.out.println("Old file overwritten.");
+                        } else {
+                            File metadata = new File();
+                            metadata.setName(fileToUpload!=null?fileToUpload.getName():"");
+                            metadata.setMimeType("text/plain");
+                            metadata.setParents(Collections.singletonList(folderName));
+                            FileContent content = new FileContent("text/plain", fileToUpload);
+                            service.files().create(metadata, content).setFields("id, parents").execute();
+                            System.out.println("New file uploaded to drive.");
+                        }
+
+                        System.out.print("Would you like to delete this file from the hard disk?(Y/N): ");
+                        Launcher.userInput.nextLine(); //@TODO elegant solution required
+                        String yesNoChoice = Launcher.userInput.nextLine();
+                        Launcher.userInput.close();
+                        if (fileToUpload.exists() && (yesNoChoice.equalsIgnoreCase("y") || yesNoChoice.equalsIgnoreCase("yes"))) {
+                            fileToUpload.delete();
+                            System.exit(0);
+                        } else{
+                            System.exit(0); //@TODO Not exiting properly
+                        }
+                        break;
+                    }
                     case "ex":{
                         System.out.println("Exiting program now...");
                         System.exit( 0);
@@ -193,23 +195,6 @@ class DriveManager {
                         break;
                 }
             }while(true);
-
-//            find folder
-//            System.out.print("Enter folder name to store in (blank for root): ");
-//            folderName = Launcher.userInput.next();
-//            foundFolder = driveSingleSearcher(false, "", folderName, service);
-//            System.out.println();
-//
-//            System.out.print("Would you like to delete this file from the hard disk?(Y/N): ");
-//            Launcher.userInput.nextLine(); //@TODO elegant solution required
-//            String yesNoChoice = Launcher.userInput.nextLine();
-//            Launcher.userInput.close();
-//            if (fileToUpload.exists() && (yesNoChoice.equalsIgnoreCase("y") || yesNoChoice.equalsIgnoreCase("yes"))) {
-//                fileToUpload.delete();
-//                System.exit(0);
-//            } else{
-//                System.exit(0);
-//            }
         }
          catch (Exception e){
             System.out.println("An error with the upload/post-upload process has been encountered, please refer to the error and stack trace.");
