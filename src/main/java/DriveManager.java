@@ -35,7 +35,7 @@ class DriveManager {
         Launcher.userInput.nextLine();
         //@TODO Add file checks
         //@TODO Add option to export google docs
-        //@TODO Add mkdir option while uploading
+
         do{
             System.out.print("Input command: ");
             option = Launcher.userInput.nextLine();
@@ -91,8 +91,6 @@ class DriveManager {
 
     void uploadFile(Drive service){
         java.io.File fileToUpload;
-        File foundFolder;
-        File fileCrosscheck;
         String option;
         String folderName = "";
         Stack<String> navPath = new Stack<String>();
@@ -112,8 +110,11 @@ class DriveManager {
             System.out.println();
 
             do{
+                File foundFolder = new File();
+                File fileCrosscheck = new File();
                 System.out.print("Input command: ");
                 option = Launcher.userInput.nextLine();
+                System.out.println();
                 switch(option.substring(0,2)){
                     case "cd":{
                         System.out.print("Opening: ");
@@ -139,52 +140,63 @@ class DriveManager {
                             break;
                         }
                     }
+                    case "mk":{
+                        foundFolder = new File(); //repurposed
+                        foundFolder.setMimeType("application/vnd.google-apps.folder");
+                        foundFolder.setName(option.substring(3));
+                        File newFolder = service.files().create(foundFolder).setFields("id, name").execute();
+                        System.out.println("Folder "+newFolder.getName()+" created.");
+                        break;
+                    }
+                    case "up":{
+
+                    }
                     case "ex":{
                         System.out.println("Exiting program now...");
                         System.exit( 0);
                     }
                     default:
                         System.out.println("Invalid input command!");
-                        System.out.println("Commands are cd, .., dl, ex");
+                        System.out.println("Commands are cd, .., mk, up, ex");
                         break;
                 }
             }while(true);
 
-            System.out.print("Enter folder name to store in (blank for root): ");
-            folderName = Launcher.userInput.next();
-            foundFolder = driveSingleSearcher(false, "", folderName, service);
-            System.out.println();
-
-            fileCrosscheck = driveSingleSearcher(true, foundFolder.getId(), fileToUpload!=null?fileToUpload.getName():"", service);
-            System.out.println("Upload confirmed successful");
-
-            if (fileCrosscheck.getName() != null) {
-                FileContent toUpdate = new FileContent("text/plain", fileToUpload);
-                File content = new File();
-                content.setName(fileToUpload.getName());
-                content.setMimeType("text/plain");
-                service.files().update(fileCrosscheck.getId(), content, toUpdate).execute();
-                System.out.println("Overwritten old file and deleting physical...");
-            } else {
-                File metadata = new File();
-                metadata.setName(fileToUpload!=null?fileToUpload.getName():"");
-                metadata.setMimeType("text/plain");
-                metadata.setParents(Collections.singletonList(foundFolder.getId()));
-                FileContent content = new FileContent("text/plain", fileToUpload);
-                service.files().create(metadata, content).setFields("id, parents").execute();
-                System.out.println("No old file was found so a new one was created, deleting physical...");
-            }
-
-            System.out.print("Would you like to delete this file from the hard disk?(Y/N): ");
-            Launcher.userInput.nextLine(); //@TODO elegant solution required
-            String yesNoChoice = Launcher.userInput.nextLine();
-            Launcher.userInput.close();
-            if (fileToUpload.exists() && (yesNoChoice.equalsIgnoreCase("y") || yesNoChoice.equalsIgnoreCase("yes"))) {
-                fileToUpload.delete();
-                System.exit(0);
-            } else{
-                System.exit(0);
-            }
+//            System.out.print("Enter folder name to store in (blank for root): ");
+//            folderName = Launcher.userInput.next();
+//            foundFolder = driveSingleSearcher(false, "", folderName, service);
+//            System.out.println();
+//
+//            fileCrosscheck = driveSingleSearcher(true, foundFolder.getId(), fileToUpload!=null?fileToUpload.getName():"", service);
+//            System.out.println("Upload confirmed successful");
+//
+//            if (fileCrosscheck.getName() != null) {
+//                FileContent toUpdate = new FileContent("text/plain", fileToUpload);
+//                File content = new File();
+//                content.setName(fileToUpload.getName());
+//                content.setMimeType("text/plain");
+//                service.files().update(fileCrosscheck.getId(), content, toUpdate).execute();
+//                System.out.println("Overwritten old file and deleting physical...");
+//            } else {
+//                File metadata = new File();
+//                metadata.setName(fileToUpload!=null?fileToUpload.getName():"");
+//                metadata.setMimeType("text/plain");
+//                metadata.setParents(Collections.singletonList(foundFolder.getId()));
+//                FileContent content = new FileContent("text/plain", fileToUpload);
+//                service.files().create(metadata, content).setFields("id, parents").execute();
+//                System.out.println("No old file was found so a new one was created, deleting physical...");
+//            }
+//
+//            System.out.print("Would you like to delete this file from the hard disk?(Y/N): ");
+//            Launcher.userInput.nextLine(); //@TODO elegant solution required
+//            String yesNoChoice = Launcher.userInput.nextLine();
+//            Launcher.userInput.close();
+//            if (fileToUpload.exists() && (yesNoChoice.equalsIgnoreCase("y") || yesNoChoice.equalsIgnoreCase("yes"))) {
+//                fileToUpload.delete();
+//                System.exit(0);
+//            } else{
+//                System.exit(0);
+//            }
         }
          catch (Exception e){
             System.out.println("An error with the upload/post-upload process has been encountered, please refer to the error and stack trace.");
